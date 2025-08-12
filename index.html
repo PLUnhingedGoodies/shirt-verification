@@ -68,18 +68,22 @@
 <div id="result" class="result" style="display:none;"></div>
 
 <script>
-  const apiURL = https://script.google.com/macros/s/AKfycbx11qKnTbtyadEVvt2P6LQmhZjgNpZh9rH5pAeKs00HTUE3pcqle3zD3pZnl2oYpiza/exec; // Replace this with your deployed Apps Script URL
+  const apiURL = "https://script.google.com/macros/s/AKfycbx11qKnTbtyadEVvt2P6LQmhZjgNpZh9rH5pAeKs00HTUE3pcqle3zD3pZnl2oYpiza/exec"; // Replace this with your deployed Apps Script URL
 
   async function checkCode() {
     const id = document.getElementById('codeInput').value.trim();
     const resultDiv = document.getElementById('result');
+    const verifyBtn = document.querySelector('button');
+    
     resultDiv.style.display = 'block';
     resultDiv.className = 'result';
     resultDiv.textContent = 'Checking...';
+    verifyBtn.disabled = true;
 
     if (!id) {
       resultDiv.classList.add('invalid');
       resultDiv.textContent = 'Please enter a code.';
+      verifyBtn.disabled = false;
       return;
     }
 
@@ -107,13 +111,17 @@
           <p><em>${data.extraInfo}</em></p>
           <p><small>${data.status}</small></p>
         `;
+        document.getElementById('codeInput').value = '';
       }
     } catch (err) {
       resultDiv.className = 'result invalid';
       resultDiv.textContent = 'Error checking code. Try again later.';
+    }finally{
+      verifyBtn.disabled = false;
     }
   }
 </script>
 
 </body>
 </html>
+
