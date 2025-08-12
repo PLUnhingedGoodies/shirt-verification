@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Shirt Authenticity Check</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #111;
+    color: #eee;
+    text-align: center;
+    padding: 2rem;
+  }
+  input, button {
+    padding: 0.6rem 1rem;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    border-radius: 6px;
+    border: none;
+    outline: none;
+  }
+  input {
+    width: 250px;
+  }
+  button {
+    background: #28a745;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  button:hover {
+    background: #218838;
+  }
+  .result {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border-radius: 10px;
+    max-width: 350px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .valid {
+    background-color: #0a3d0a;
+    color: #7fff7f;
+    border: 2px solid #4caf50;
+  }
+  .used {
+    background-color: #5a1a1a;
+    color: #ff9999;
+    border: 2px solid #d9534f;
+  }
+  .invalid {
+    background-color: #3a1a3a;
+    color: #ff77ff;
+    border: 2px solid #c71585;
+  }
+</style>
+</head>
+<body>
+
+<h1>Verify Your Collectible Shirt</h1>
+<p>Enter the unique code from your shirt’s QR tag below:</p>
+
+<input id="codeInput" type="text" placeholder="Enter Shirt ID" autocomplete="off" />
+<button onclick="checkCode()">Verify</button>
+
+<div id="result" class="result" style="display:none;"></div>
+
+<script>
+  const apiURL = https://script.google.com/macros/s/AKfycbx11qKnTbtyadEVvt2P6LQmhZjgNpZh9rH5pAeKs00HTUE3pcqle3zD3pZnl2oYpiza/exec; // Replace this with your deployed Apps Script URL
+
+  async function checkCode() {
+    const id = document.getElementById('codeInput').value.trim();
+    const resultDiv = document.getElementById('result');
+    resultDiv.style.display = 'block';
+    resultDiv.className = 'result';
+    resultDiv.textContent = 'Checking...';
+
+    if (!id) {
+      resultDiv.classList.add('invalid');
+      resultDiv.textContent = 'Please enter a code.';
+      return;
+    }
+
+    try {
+      const response = await fetch(`${apiURL}?id=${encodeURIComponent(id)}`);
+      const data = await response.json();
+
+      if (data.error === "Not found") {
+        resultDiv.className = 'result invalid';
+        resultDiv.textContent = '❌ Code not found. Possible fake or error.';
+      } else if (data.error === "Code already used") {
+        resultDiv.className = 'result used';
+        resultDiv.innerHTML = `
+          <h2>⚠️ Code Already Redeemed</h2>
+          <p>This code has been scanned before.</p>
+          <p>Your shirt is still a true collectible—only one scan allowed.</p>
+        `;
+      } else {
+        resultDiv.className = 'result valid';
+        resultDiv.innerHTML = `
+          <h2>✅ Authentic Shirt Verified!</h2>
+          <p><strong>Shirt Name:</strong> ${data.shirtName}</p>
+          <p><strong>Edition:</strong> ${data.edition}</p>
+          <p><strong>Release Date:</strong> ${data.releaseDate}</p>
+          <p><em>${data.extraInfo}</em></p>
+          <p><small>${data.status}</small></p>
+        `;
+      }
+    } catch (err) {
+      resultDiv.className = 'result invalid';
+      resultDiv.textContent = 'Error checking code. Try again later.';
+    }
+  }
+</script>
+
+</body>
+</html>
